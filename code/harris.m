@@ -60,7 +60,6 @@ function [cim, r, c] = harris(im, sigma, thresh, radius, disp)
 %   cim = (Ix2.*Iy2 - Ixy.^2) - k*(Ix2 + Iy2).^2; 
 
     if nargin > 2   % We should perform nonmaximal suppression and threshold
-	
 	% Extract local maxima by performing a grey scale morphological
 	% dilation and then finding points in the corner strength image that
 	% match the dilated image and are also greater than the threshold.

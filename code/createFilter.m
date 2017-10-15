@@ -20,7 +20,7 @@ function [filter] = createFilter(sigma)
 
     for scale = logScale
         idx = idx + 1;
-        filter{idx} = sigma^2*fspecial('log', 2*ceil(scale*2.5)+1, scale);%matrix size is odd
+        filter{idx} = scale^2*fspecial('log', 2*ceil(scale*2.5)+1, scale);%matrix size is odd
     end
 
     % for scale = dxScales

@@ -34,7 +34,7 @@ for i=1:n
 	% radius=2^0.5*sigma;                   % radius of the circle, sigma=radius/1.414
 	mx = ordfilt2(scale_space(:,:,i),9,ones(3,3)); % Grey-scale dilate.
 	% % maxSpace(:,:,i) = max(maxSpace(:,:,max(i-1,1):min(i+1,n)),[],3);
-	Scale_Space(:,:,i) = mx;     % Find maxima	
+	Scale_Space(:,:,i) = mx;
 end
 
 for i = 1:n

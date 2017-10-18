@@ -1,4 +1,4 @@
-function [X,Y] = custom_show_all_circles(I, cx, cy, rad, color, ln_wid)
+function [X,Y] = custom_show_all_circles(cx, cy, rad)
 %% I: image on top of which you want to display the circles
 %% cx, cy: column vectors with x and y coordinates of circle centers
 %% rad: column vector with radii of circles. 
@@ -7,16 +7,6 @@ function [X,Y] = custom_show_all_circles(I, cx, cy, rad, color, ln_wid)
 %%        to be displayed (red by default)
 %% ln_wid: line width of circles (optional, 1.5 by default
 
-if nargin < 5
-    color = 'r';
-end
-
-if nargin < 6
-   ln_wid = 1.5;
-end
-
-imshow(I); hold on;
-
 theta = 0:0.1:(2*pi+0.1);
 cx1 = cx(:,ones(size(theta)));
 cy1 = cy(:,ones(size(theta)));
@@ -24,6 +14,3 @@ rad1 = rad(:,ones(size(theta)));
 theta = theta(ones(size(cx1,1),1),:);
 X = cx1+cos(theta).*rad1;
 Y = cy1+sin(theta).*rad1;
-% line(X', Y', 'Color', color, 'LineWidth', ln_wid);
-
-title(sprintf('Plotting Blobs'));

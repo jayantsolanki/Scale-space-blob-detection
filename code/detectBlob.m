@@ -1,23 +1,31 @@
 %detectBlob1.m
-function detectBlob1(img, Sigma, n, threshold, color, time)
-%% img: image on top of which you want to display the circles
+function detectBlob1(img, Sigma, n, threshold, color, mode, time)
+%% img: image on top of which you want to display the circles, just pass the rgb image after reading it using imread
 %% sigma: starting value of the sigma
 %% n: size of the scale-sapce 
 %% threshold: for adjusting the number of the circles, typically between 0.04 to 0.1, for absolute value for filter response, check the method there, varies for squared response
+%% for squared response use threshold 0.01. for abs, use threshold 
 %% color: parameter specifying the color of the circles
-%% time:optional, for calucalting time for execution, default set to 0
+%% mode: parameter specifying type of preprocessing required, 1 for image resizing, 0 for scale changing, default 1
+%% time:optional, for calculating time for execution, default set to 0 for no time measurement
 
 	% img=imread('..\data\butterfly.jpg');
-	if nargin < 6
+	if nargin < 7
 	    time=0;
 	end
-	img=rgb2gray(img);%converting the RGB colorspace into grayscale
+	if nargin < 6
+	    mode=1;
+	end
+	% h,w - dimensions of image
+	[h,w,ch]=size(img);%storing the dimensions of the image
+	if ch==3
+		img=rgb2gray(img);%converting the RGB colorspace into grayscale
+	end
 	img=double(img);%converting into double format
 	img=img/255;
+	% img=im2double(img);
 
 	% imshow(img);
-	% h,w - dimensions of image
-	[h,w]=size(img);%stroing the dimension of the image
 	scale_space = zeros(h,w,n);%for storing the original filter response
 	Scale_Space = zeros(h,w,n);% for storing the preprocessed filter responses after ordfilt2
 	Sscale_Sspace = zeros(h,w,n); %for storing the preprocessed filter responses after non-maximum suppression
@@ -26,21 +34,46 @@ function detectBlob1(img, Sigma, n, threshold, color, time)
 	X=[]; %for storing X coordinates of the pixels after non maximum suppression
 	Y=[]; %for storing Y coordinates of the pixels after non maximum suppression
 	% threshold=0.07;
-	for i=1:n
-		sigma=Sigma*k^(i-1);
-		filter  = createFilter(sigma);
-		% scale_space(:,:,i)=imfilter(img, filter{1},'same', 'replicate').^2;%applying Laplacian filter and storing its squared values
-		scale_space(:,:,i)=abs(imfilter(img, filter{1}, 'same', 'replicate'));%absolute value
-		waitbar(i/n,h,sprintf('%d / %d filters generated',i,n))%waitbar, random stuff
-		mx = ordfilt2(scale_space(:,:,i),9,ones(3,3)); % Grey-scale dilate., taking 9 for alloting max in neighbourhood
-		if time==0
-			imagesc(scale_space(:,:,i)); 
-			colorbar;
-			title(sprintf('Showing the filter response for iteration %d, sigma = %0.3f',i, sigma));
-			truesize;
+	if time==1
+		tic
+	end
+	if mode==0
+		for i=1:n
+			sigma=Sigma*k^(i-1);
+			filter  = createFilter(sigma);
+			% scale_space(:,:,i)=imfilter(img, filter{1},'same', 'replicate').^2;%applying Laplacian filter and storing its squared values
+			scale_space(:,:,i)=abs(imfilter(img, filter{1}, 'same', 'replicate'));%absolute value
+			waitbar(i/n,h,sprintf('%d / %d filters generated',i,n))%waitbar, random stuff
+			mx = ordfilt2(scale_space(:,:,i),49,ones(7,7)); % Grey-scale dilate., taking 9 for alloting max in neighbourhood
+			if time==0
+				imagesc(mx); 
+				colorbar;
+				title(sprintf('Showing the filter response for iteration %d, sigma = %0.3f',i, sigma));
+				truesize;
+			end
+			% pause
+			Scale_Space(:,:,i) = mx;
 		end
-		% pause
-		Scale_Space(:,:,i) = mx;
+	else
+		for i=1:n
+			% sigma=Sigma*k^(i-1);
+			filter  = createFilter(Sigma);
+			IMG = imresize(img, 1/k^(i-1), 'cubic');
+			temp = imfilter(IMG, filter{1},'same', 'replicate').^2;%applying Laplacian filter and storing its squared values
+			% temp = abs(imfilter(IMG, filter{1}, 'same', 'replicate'));%absolute value
+			waitbar(i/n,h,sprintf('%d / %d filters generated',i,n))%waitbar, random stuff
+			% scale_space(:,:,i) = imresize(temp, [h, w], 'bicubic');
+			scale_space(:,:,i) = imresize(temp, size(img), 'cubic'); % lanczos3, lanczos2, cubic similar to bicubic, resizing back to original config
+			mx = ordfilt2(scale_space(:,:,i),49,ones(7,7)); % Grey-scale dilate., taking 9 for alloting max in neighbourhood
+			if time==0
+				imagesc(mx); 
+				colorbar;
+				title(sprintf('Showing the filter response for iteration %d, sigma = %0.3f',i, Sigma));
+				truesize;
+			end
+			% pause
+			Scale_Space(:,:,i) = mx;
+		end
 	end
 	% waitbar(h,sprintf('Done! Now showing the circles.'));
 	close(h);
@@ -57,6 +90,7 @@ function detectBlob1(img, Sigma, n, threshold, color, time)
 	% 	end
 	% 	% Scale_Space(x,y,i)=g(x,y,er(x,y));
 	% end
+	% Sscale_Sspace=Scale_Space;
 	%this one is crude but easier to understand
 	[h,w]=size(img);
 	for i=1:h
@@ -84,6 +118,9 @@ function detectBlob1(img, Sigma, n, threshold, color, time)
 			disp('To many cicles, exiting now')
 			return
 		end
+	end
+	if time==1
+		toc
 	end
 	imshow(img); 
 	truesize;

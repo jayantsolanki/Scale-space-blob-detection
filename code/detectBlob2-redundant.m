@@ -14,10 +14,11 @@ function detectBlob2(img, Sigma, n, threshold, color, time)
 	img=rgb2gray(img);%converting the RGB colorspace into grayscale
 	img=double(img);%converting into double format
 	img=img/255;
-
 	% imshow(img);
 	% h,w - dimensions of image
-	[h,w]=size(img);%stroing the dimension of the image
+	[h,w]=size(img);%storing the dimensions of the image
+	% h=uint8(h);
+	% w=uint8(w);
 	scale_space = zeros(h,w,n);%for storing the original filter response
 	Scale_Space = zeros(h,w,n);% for storing the preprocessed filter responses after ordfilt2
 	Sscale_Sspace = zeros(h,w,n); %for storing the preprocessed filter responses after non-maximum suppression
@@ -26,17 +27,23 @@ function detectBlob2(img, Sigma, n, threshold, color, time)
 	X=[]; %for storing X coordinates of the pixels after non maximum suppression
 	Y=[]; %for storing Y coordinates of the pixels after non maximum suppression
 	% threshold=0.07;
+	if time==1
+		tic
+	end
 	for i=1:n
-		sigma=Sigma*k^(i-1);
-		filter  = createFilter(sigma);
-		% scale_space(:,:,i)=imfilter(img, filter{1},'same', 'replicate').^2;%applying Laplacian filter and storing its squared values
-		scale_space(:,:,i)=abs(imfilter(img, filter{1}, 'same', 'replicate'));%absolute value
+		% sigma=Sigma*k^(i-1);
+		filter  = createFilter(Sigma);
+		IMG = imresize(img, 1/k^(i-1), 'cubic');
+		% temp = imfilter(IMG, filter{1},'same', 'replicate').^2;%applying Laplacian filter and storing its squared values
+		temp = abs(imfilter(IMG, filter{1}, 'same', 'replicate'));%absolute value
 		waitbar(i/n,h,sprintf('%d / %d filters generated',i,n))%waitbar, random stuff
+		% scale_space(:,:,i) = imresize(temp, [h, w], 'bicubic');
+		scale_space(:,:,i) = imresize(temp, size(img), 'cubic'); % lanczos3, lanczos2, cubic similar to bicubic, resizing back to original config
 		mx = ordfilt2(scale_space(:,:,i),9,ones(3,3)); % Grey-scale dilate., taking 9 for alloting max in neighbourhood
 		if time==0
 			imagesc(scale_space(:,:,i)); 
 			colorbar;
-			title(sprintf('Showing the filter response for iteration %d, sigma = %0.3f',i, sigma));
+			title(sprintf('Showing the filter response for iteration %d, sigma = %0.3f',i, Sigma));
 			truesize;
 		end
 		% pause
@@ -84,6 +91,9 @@ function detectBlob2(img, Sigma, n, threshold, color, time)
 			disp('To many cicles, exiting now')
 			return
 		end
+	end
+	if time==1
+		toc
 	end
 	imshow(img); 
 	truesize;

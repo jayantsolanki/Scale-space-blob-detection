@@ -3,8 +3,8 @@ function detectBlob1(img, Sigma, n, threshold, color, mode, time)
 %% img: image on top of which you want to display the circles, just pass the rgb image after reading it using imread
 %% sigma: starting value of the sigma
 %% n: size of the scale-sapce 
-%% threshold: for adjusting the number of the circles, typically between 0.04 to 0.1, for absolute value for filter response, check the method there, varies for squared response
-%% for squared response use threshold 0.01. for abs, use threshold 
+%% threshold: for adjusting the number of the circles, typically between 0.005 to 0.001, check the method there, varies for squared response
+%% for squared response and absoulte values of imfilter 
 %% color: parameter specifying the color of the circles
 %% mode: parameter specifying type of preprocessing required, 1 for image resizing, 0 for scale changing, default 1
 %% time:optional, for calculating time for execution, default set to 0 for no time measurement
@@ -127,5 +127,5 @@ function detectBlob1(img, Sigma, n, threshold, color, mode, time)
 	% hold on;
 	line(X', Y', 'Color', color, 'LineWidth', 1.5);
 	title(sprintf('%d blobs, at threshold %0.3f for intial sigma %0.1f and scale-space size %d',size(X,1), threshold, Sigma, n));
-	disp('Blobs printed');
+	fprintf('%d Blobs printed\n', size(X,1));
 end

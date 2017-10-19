@@ -3,7 +3,7 @@ function detectBlob2(img, Sigma, n, threshold, color, time)
 %% img: image on top of which you want to display the circles
 %% sigma: starting value of the sigma
 %% n: size of the scale-sapce 
-%% threshold: for adjusting the number of the circles, typically between 0.04 to 0.1, for absolute value for filter response, check the method there, varies for squared response
+%% threshold: for adjusting the number of the circles, typically between 0.005 to 0.001, for absolute value for filter response, check the method there, varies for squared response
 %% color: parameter specifying the color of the circles
 %% time:optional, for calucalting time for execution, default set to 0
 
